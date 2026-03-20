@@ -656,7 +656,7 @@ class G1DwaqAmpMujocoRunner:
 
     def adjust_command_vel(self, idx: int, increment: float) -> None:
         """调整速度命令"""
-        limits = [10, 0.5, 1.57]  # vx, vy, yaw_rate 限制
+        limits = [2.0, 0.5, 1.57]  # vx, vy, yaw_rate 限制
         self.command_vel[idx] += increment
         self.command_vel[idx] = np.clip(self.command_vel[idx], -limits[idx], limits[idx])
 
@@ -780,7 +780,7 @@ def main():
     default_checkpoint = find_latest_checkpoint(LOGS_DIR, "g1_dwaq_amp")
     if default_checkpoint is None:
         # 回退到硬编码路径
-        default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq_amp/2026-03-20_12-23-32/model_3000.pt")
+        default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq_amp/2026-03-20_12-23-32/model_5000.pt")
 
     print(f"[INFO] 默认 checkpoint: {default_checkpoint}")
 

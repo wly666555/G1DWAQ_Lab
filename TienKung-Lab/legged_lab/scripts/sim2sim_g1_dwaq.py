@@ -765,7 +765,7 @@ def main():
     #     # 回退到硬编码路径
     #     default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq/2026-01-15_11-21-04/model_10000.pt")
 
-    default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq/2026-03-17_17-07-39/model_3000.pt")
+    default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq/2026-03-17_17-07-39/model_5100.pt")
 
     default_model = os.path.join(MJCF_DIR, "g1_29dof_rev_1_0_daf.xml")
     

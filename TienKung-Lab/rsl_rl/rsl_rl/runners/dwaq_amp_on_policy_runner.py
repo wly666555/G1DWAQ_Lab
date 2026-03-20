@@ -44,6 +44,7 @@ from rsl_rl.algorithms import DWAQAMPPPO
 from rsl_rl.env import VecEnv
 from rsl_rl.modules import ActorCritic_DWAQ, Discriminator, EmpiricalNormalization
 from rsl_rl.utils.g1_motion_loader import AMPLoader
+from rsl_rl.utils.amp_load_npz import AMPLoaderNPZ
 from rsl_rl.utils import Normalizer, store_code_state
 
 
@@ -102,16 +103,40 @@ class DWAQAMPOnPolicyRunner:
         ).to(self.device)
 
         # Initialize AMP components
-        amp_data = AMPLoader(
-            device,
-            time_between_frames=self.env.step_dt,
-            preload_transitions=True,
-            num_preload_transitions=train_cfg["amp_num_preload_transitions"],
-            motion_files=train_cfg["amp_motion_files"],
-        )
-        amp_normalizer = Normalizer(amp_data.observation_dim)
+        # Auto-detect file format (csv or npz) and use corresponding loader
+        amp_motion_files = train_cfg["amp_motion_files"]
+        if amp_motion_files and len(amp_motion_files) > 0:
+            first_file = amp_motion_files[0]
+            if first_file.endswith('.npz'):
+                print(f"[DWAQAMPRunner] Detected NPZ format, using AMPLoaderNPZ")
+                amp_data = AMPLoaderNPZ(
+                    npz_files=amp_motion_files,
+                    device=device,
+                    num_preload_transitions=train_cfg["amp_num_preload_transitions"],
+                )
+            elif first_file.endswith('.csv'):
+                print(f"[DWAQAMPRunner] Detected CSV format, using AMPLoader")
+                amp_data = AMPLoader(
+                    device,
+                    time_between_frames=self.env.step_dt,
+                    preload_transitions=True,
+                    num_preload_transitions=train_cfg["amp_num_preload_transitions"],
+                    motion_files=amp_motion_files,
+                )
+            else:
+                raise ValueError(f"Unsupported AMP motion file format: {first_file}")
+        else:
+            raise ValueError("amp_motion_files is empty or not specified")
+
+        # For NPZ loader, we need to get observation_dim differently
+        if hasattr(amp_data, 'frame_data'):
+            amp_observation_dim = amp_data.frame_data.shape[1]
+        else:
+            amp_observation_dim = amp_data.observation_dim
+
+        amp_normalizer = Normalizer(amp_observation_dim)
         discriminator = Discriminator(
-            amp_data.observation_dim * 2,
+            amp_observation_dim * 2,
             train_cfg["amp_reward_coef"],
             train_cfg["amp_discr_hidden_dims"],
             device,

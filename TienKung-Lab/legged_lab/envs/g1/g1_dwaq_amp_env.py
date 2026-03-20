@@ -90,10 +90,11 @@ class G1DwaqAmpEnv(G1DwaqEnv):
         Get the size of AMP observations.
 
         Returns:
-            Size of AMP observations (65 dimensions for G1)
+            Size of AMP observations (58 dimensions for G1)
         """
-        # AMP obs: joint_pos(29) + base_lin_vel(3) + base_ang_vel(3) + joint_vel(29) + z_pos(1)
-        return 29 + 3 + 3 + 29 + 1
+        # AMP obs: joint_pos(29) + joint_vel(29) = 58 dimensions
+        # This matches the NPZ expert data format (dof_positions + dof_velocities)
+        return 29 + 29
 
     def get_amp_observations(self) -> torch.Tensor:
         """
@@ -102,43 +103,32 @@ class G1DwaqAmpEnv(G1DwaqEnv):
         This method returns the state representation used by the AMP discriminator
         to distinguish between policy-generated and expert motions.
 
-        The format matches the expert data from AMP_for_g1 project:
+        The format matches the NPZ expert data format:
         - joint_pos: All 29 joint positions (absolute, not relative to default)
-        - base_lin_vel: Root linear velocity in world frame
-        - base_ang_vel: Root angular velocity in body frame
         - joint_vel: All 29 joint velocities
-        - z_pos: Root height (z-coordinate in world frame)
+
+        This simplified representation (58D) matches the structure of the Male2Walking_c3d
+        NPZ dataset which contains dof_positions (29) + dof_velocities (29).
 
         Returns:
-            AMP observations [num_envs, 65]
+            AMP observations [num_envs, 58]
 
-        Reference: AMP_for_g1/legged_gym/envs/base/g1_legged_robot.py::get_amp_observations()
+        Note: Previous version used 65D with base velocities and root height, but the
+        NPZ expert data only contains joint-level information.
         """
         robot = self.robot
 
         # Joint positions (29 dimensions) - use absolute positions, not relative to default
         joint_pos = robot.data.joint_pos  # [num_envs, 29]
 
-        # Base linear velocity in world frame (3 dimensions)
-        base_lin_vel = robot.data.root_lin_vel_w  # [num_envs, 3]
-
-        # Base angular velocity in body frame (3 dimensions)
-        base_ang_vel = robot.data.root_ang_vel_b  # [num_envs, 3]
-
         # Joint velocities (29 dimensions)
         joint_vel = robot.data.joint_vel  # [num_envs, 29]
 
-        # Root height (1 dimension)
-        z_pos = robot.data.root_pos_w[:, 2:3]  # [num_envs, 1]
-
-        # Concatenate all components
+        # Concatenate to match NPZ format: dof_positions + dof_velocities
         amp_obs = torch.cat([
             joint_pos,      # 29
-            base_lin_vel,   # 3
-            base_ang_vel,   # 3
             joint_vel,      # 29
-            z_pos,          # 1
-        ], dim=-1)  # Total: 65 dimensions
+        ], dim=-1)  # Total: 58 dimensions
 
         return amp_obs
 

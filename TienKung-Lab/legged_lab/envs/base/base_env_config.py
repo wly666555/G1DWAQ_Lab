@@ -211,7 +211,7 @@ class BaseAgentCfg(RslRlOnPolicyRunnerCfg):
         rnd_cfg=None,  # RslRlRndCfg()
     )
     clip_actions = None
-    save_interval = 100
+    save_interval = 1000
     runner_class_name = "OnPolicyRunner"
     experiment_name = ""
     run_name = ""

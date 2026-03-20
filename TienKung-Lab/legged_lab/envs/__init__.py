@@ -46,6 +46,11 @@ from legged_lab.envs.g1.g1_dwaq_config import (
     G1DwaqAgentCfg,
     G1DwaqEnvCfg,
 )
+from legged_lab.envs.g1.g1_dwaq_amp_env import G1DwaqAmpEnv
+from legged_lab.envs.g1.g1_dwaq_amp_config import (
+    G1DwaqAmpAgentCfg,
+    G1DwaqAmpEnvCfg,
+)
 
 from legged_lab.envs.h1.h1_config import (
     H1FlatAgentCfg,
@@ -71,4 +76,5 @@ task_registry.register("h1_rough", BaseEnv, H1RoughEnvCfg(), H1RoughAgentCfg())
 task_registry.register("g1_flat", BaseEnv, G1FlatEnvCfg(), G1FlatAgentCfg())
 task_registry.register("g1_rough", G1Env, G1RoughEnvCfg(), G1RoughAgentCfg())
 task_registry.register("g1_dwaq", G1DwaqEnv, G1DwaqEnvCfg(), G1DwaqAgentCfg())
+task_registry.register("g1_dwaq_amp", G1DwaqAmpEnv, G1DwaqAmpEnvCfg(), G1DwaqAmpAgentCfg())
 

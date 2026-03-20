@@ -1,0 +1,224 @@
+--- git status ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   TienKung-Lab/legged_lab/assets/unitree/g1/mjcf/g1_29dof_rev_1_0_daf.xml
+	modified:   TienKung-Lab/legged_lab/envs/__init__.py
+	modified:   TienKung-Lab/legged_lab/envs/base/base_env_config.py
+	modified:   TienKung-Lab/legged_lab/scripts/play.py
+	modified:   TienKung-Lab/legged_lab/scripts/sim2sim_g1_dwaq.py
+	modified:   TienKung-Lab/legged_lab/scripts/train.py
+	modified:   TienKung-Lab/rsl_rl/rsl_rl/algorithms/__init__.py
+	modified:   TienKung-Lab/rsl_rl/rsl_rl/runners/__init__.py
+	modified:   TienKung-Lab/rsl_rl/rsl_rl/utils/utils.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	TienKung-Lab/legged_lab/envs/g1/datasets/
+	TienKung-Lab/legged_lab/envs/g1/g1_dwaq_amp_config.py
+	TienKung-Lab/legged_lab/envs/g1/g1_dwaq_amp_env.py
+	TienKung-Lab/legged_lab/scripts/sim2sim_g1_dwaq_amp.py
+	TienKung-Lab/logs/g1_dwaq/2026-03-17_17-07-39/
+	TienKung-Lab/logs/g1_dwaq_amp/
+	TienKung-Lab/rsl_rl/rsl_rl/algorithms/dwaq_amp_ppo.py
+	TienKung-Lab/rsl_rl/rsl_rl/runners/dwaq_amp_on_policy_runner.py
+	TienKung-Lab/rsl_rl/rsl_rl/utils/g1_motion_loader.py
+	TienKung-Lab/rsl_rl/rsl_rl/utils/motion_util.py
+	TienKung-Lab/rsl_rl/rsl_rl/utils/pose3d.py
+
+no changes added to commit (use "git add" and/or "git commit -a") 
+
+
+--- git diff ---
+diff --git a/TienKung-Lab/legged_lab/assets/unitree/g1/mjcf/g1_29dof_rev_1_0_daf.xml b/TienKung-Lab/legged_lab/assets/unitree/g1/mjcf/g1_29dof_rev_1_0_daf.xml
+index 3025d8d..a726a7d 100755
+--- a/TienKung-Lab/legged_lab/assets/unitree/g1/mjcf/g1_29dof_rev_1_0_daf.xml
++++ b/TienKung-Lab/legged_lab/assets/unitree/g1/mjcf/g1_29dof_rev_1_0_daf.xml
+@@ -278,22 +278,4 @@
+     <gyro name="imu-pelvis-angular-velocity" site="imu_in_pelvis" noise="5e-4" cutoff="34.9"/>
+     <accelerometer name="imu-pelvis-linear-acceleration" site="imu_in_pelvis" noise="1e-2" cutoff="157"/>
+   </sensor>
+-
+-
+-  <!-- setup scene -->
+-  <statistic center="1.0 0.7 1.0" extent="0.8"/>
+-  <visual>
+-    <headlight diffuse="0.6 0.6 0.6" ambient="0.1 0.1 0.1" specular="0.9 0.9 0.9"/>
+-    <rgba haze="0.15 0.25 0.35 1"/>
+-    <global azimuth="-140" elevation="-20"/>
+-  </visual>
+-  <asset>
+-    <texture type="skybox" builtin="flat" rgb1="0 0 0" rgb2="0 0 0" width="512" height="3072"/>
+-    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+-    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2"/>
+-  </asset>
+-  <worldbody>
+-    <light pos="1 0 3.5" dir="0 0 -1" directional="true"/>
+-    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+-  </worldbody>
+ </mujoco>
+\ No newline at end of file
+diff --git a/TienKung-Lab/legged_lab/envs/__init__.py b/TienKung-Lab/legged_lab/envs/__init__.py
+index 9c71ecb..ce30e21 100644
+--- a/TienKung-Lab/legged_lab/envs/__init__.py
++++ b/TienKung-Lab/legged_lab/envs/__init__.py
+@@ -46,6 +46,11 @@ from legged_lab.envs.g1.g1_dwaq_config import (
+     G1DwaqAgentCfg,
+     G1DwaqEnvCfg,
+ )
++from legged_lab.envs.g1.g1_dwaq_amp_env import G1DwaqAmpEnv
++from legged_lab.envs.g1.g1_dwaq_amp_config import (
++    G1DwaqAmpAgentCfg,
++    G1DwaqAmpEnvCfg,
++)
+ 
+ from legged_lab.envs.h1.h1_config import (
+     H1FlatAgentCfg,
+@@ -71,4 +76,5 @@ task_registry.register("h1_rough", BaseEnv, H1RoughEnvCfg(), H1RoughAgentCfg())
+ task_registry.register("g1_flat", BaseEnv, G1FlatEnvCfg(), G1FlatAgentCfg())
+ task_registry.register("g1_rough", G1Env, G1RoughEnvCfg(), G1RoughAgentCfg())
+ task_registry.register("g1_dwaq", G1DwaqEnv, G1DwaqEnvCfg(), G1DwaqAgentCfg())
++task_registry.register("g1_dwaq_amp", G1DwaqAmpEnv, G1DwaqAmpEnvCfg(), G1DwaqAmpAgentCfg())
+ 
+diff --git a/TienKung-Lab/legged_lab/envs/base/base_env_config.py b/TienKung-Lab/legged_lab/envs/base/base_env_config.py
+index 5ee3bed..3a1cfd2 100644
+--- a/TienKung-Lab/legged_lab/envs/base/base_env_config.py
++++ b/TienKung-Lab/legged_lab/envs/base/base_env_config.py
+@@ -211,7 +211,7 @@ class BaseAgentCfg(RslRlOnPolicyRunnerCfg):
+         rnd_cfg=None,  # RslRlRndCfg()
+     )
+     clip_actions = None
+-    save_interval = 100
++    save_interval = 1000
+     runner_class_name = "OnPolicyRunner"
+     experiment_name = ""
+     run_name = ""
+diff --git a/TienKung-Lab/legged_lab/scripts/play.py b/TienKung-Lab/legged_lab/scripts/play.py
+index fe11197..2d00292 100644
+--- a/TienKung-Lab/legged_lab/scripts/play.py
++++ b/TienKung-Lab/legged_lab/scripts/play.py
+@@ -24,7 +24,7 @@ import torch
+ from isaaclab.app import AppLauncher
+ 
+ from legged_lab.utils import task_registry
+-from rsl_rl.runners import AmpOnPolicyRunner, OnPolicyRunner, DWAQOnPolicyRunner
++from rsl_rl.runners import AmpOnPolicyRunner, OnPolicyRunner, DWAQOnPolicyRunner, DWAQAMPOnPolicyRunner
+ 
+ # local imports
+ import legged_lab.utils.cli_args as cli_args  # isort: skip
+@@ -282,7 +282,7 @@ def play():
+     resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+     log_dir = os.path.dirname(resume_path)
+ 
+-    runner_class: OnPolicyRunner | AmpOnPolicyRunner | DWAQOnPolicyRunner = eval(agent_cfg.runner_class_name)
++    runner_class: OnPolicyRunner | AmpOnPolicyRunner | DWAQOnPolicyRunner | DWAQAMPOnPolicyRunner = eval(agent_cfg.runner_class_name)
+     runner = runner_class(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
+     runner.load(resume_path, load_optimizer=False)
+ 
+diff --git a/TienKung-Lab/legged_lab/scripts/sim2sim_g1_dwaq.py b/TienKung-Lab/legged_lab/scripts/sim2sim_g1_dwaq.py
+index c2ce4b9..e5618e1 100644
+--- a/TienKung-Lab/legged_lab/scripts/sim2sim_g1_dwaq.py
++++ b/TienKung-Lab/legged_lab/scripts/sim2sim_g1_dwaq.py
+@@ -765,7 +765,7 @@ def main():
+     #     # 回退到硬编码路径
+     #     default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq/2026-01-15_11-21-04/model_10000.pt")
+ 
+-    default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq/2026-01-16_00-46-00/model_9999.pt")
++    default_checkpoint = os.path.join(LOGS_DIR, "g1_dwaq/2026-03-17_17-07-39/model_5100.pt")
+ 
+     default_model = os.path.join(MJCF_DIR, "g1_29dof_rev_1_0_daf.xml")
+     
+diff --git a/TienKung-Lab/legged_lab/scripts/train.py b/TienKung-Lab/legged_lab/scripts/train.py
+index c42e1ea..05ec627 100644
+--- a/TienKung-Lab/legged_lab/scripts/train.py
++++ b/TienKung-Lab/legged_lab/scripts/train.py
+@@ -21,7 +21,7 @@ import argparse
+ from isaaclab.app import AppLauncher
+ 
+ from legged_lab.utils import task_registry
+-from rsl_rl.runners import AmpOnPolicyRunner, OnPolicyRunner, DWAQOnPolicyRunner
++from rsl_rl.runners import AmpOnPolicyRunner, OnPolicyRunner, DWAQOnPolicyRunner, DWAQAMPOnPolicyRunner
+ 
+ # local imports
+ import legged_lab.utils.cli_args as cli_args  # isort: skip
+diff --git a/TienKung-Lab/rsl_rl/rsl_rl/algorithms/__init__.py b/TienKung-Lab/rsl_rl/rsl_rl/algorithms/__init__.py
+index 2a6fa69..1b2e3b0 100644
+--- a/TienKung-Lab/rsl_rl/rsl_rl/algorithms/__init__.py
++++ b/TienKung-Lab/rsl_rl/rsl_rl/algorithms/__init__.py
+@@ -22,5 +22,6 @@ from .amp_ppo import AMPPPO
+ from .distillation import Distillation
+ from .ppo import PPO
+ from .dwaq_ppo import DWAQPPO
++from .dwaq_amp_ppo import DWAQAMPPPO
+ 
+-__all__ = ["PPO", "Distillation", "AMPPPO", "DWAQPPO"]
+\ No newline at end of file
++__all__ = ["PPO", "Distillation", "AMPPPO", "DWAQPPO", "DWAQAMPPPO"]
+\ No newline at end of file
+diff --git a/TienKung-Lab/rsl_rl/rsl_rl/runners/__init__.py b/TienKung-Lab/rsl_rl/rsl_rl/runners/__init__.py
+index a3fd1e2..9d0fb0f 100644
+--- a/TienKung-Lab/rsl_rl/rsl_rl/runners/__init__.py
++++ b/TienKung-Lab/rsl_rl/rsl_rl/runners/__init__.py
+@@ -21,5 +21,6 @@
+ from .amp_on_policy_runner import AmpOnPolicyRunner
+ from .on_policy_runner import OnPolicyRunner
+ from .dwaq_on_policy_runner import DWAQOnPolicyRunner
++from .dwaq_amp_on_policy_runner import DWAQAMPOnPolicyRunner
+ 
+-__all__ = ["OnPolicyRunner", "AmpOnPolicyRunner", "DWAQOnPolicyRunner"]
++__all__ = ["OnPolicyRunner", "AmpOnPolicyRunner", "DWAQOnPolicyRunner", "DWAQAMPOnPolicyRunner"]
+diff --git a/TienKung-Lab/rsl_rl/rsl_rl/utils/utils.py b/TienKung-Lab/rsl_rl/rsl_rl/utils/utils.py
+index ed5b15a..8845a8c 100644
+--- a/TienKung-Lab/rsl_rl/rsl_rl/utils/utils.py
++++ b/TienKung-Lab/rsl_rl/rsl_rl/utils/utils.py
+@@ -27,7 +27,7 @@ import git
+ import numpy as np
+ import torch
+ 
+-
++_EPS = np.finfo(float).eps * 4.0
+ class RunningMeanStd:
+     def __init__(self, epsilon: float = 1e-4, shape: Tuple[int, ...] = ()):
+         """
+@@ -211,3 +211,38 @@ def string_to_callable(name: str) -> Callable:
+             f" 'module:attribute_name'\nWhile processing input '{name}', received the error:\n {e}."
+         )
+         raise ValueError(msg)
++
++def quaternion_slerp(q0, q1, fraction, spin=0, shortestpath=True):
++    """Batch quaternion spherical linear interpolation."""
++
++    out = torch.zeros_like(q0)
++
++    zero_mask = torch.isclose(fraction, torch.zeros_like(fraction)).squeeze()
++    ones_mask = torch.isclose(fraction, torch.ones_like(fraction)).squeeze()
++    out[zero_mask] = q0[zero_mask]
++    out[ones_mask] = q1[ones_mask]
++
++    d = torch.sum(q0 * q1, dim=-1, keepdim=True)
++    dist_mask = (torch.abs(torch.abs(d) - 1.0) < _EPS).squeeze()
++    out[dist_mask] = q0[dist_mask]
++
++    if shortestpath:
++        d_old = torch.clone(d)
++        d = torch.where(d_old < 0, -d, d)
++        q1 = torch.where(d_old < 0, -q1, q1)
++
++    angle = torch.acos(d) + spin * torch.pi
++    angle_mask = (torch.abs(angle) < _EPS).squeeze()
++    out[angle_mask] = q0[angle_mask]
++
++    final_mask = torch.logical_or(zero_mask, ones_mask)
++    final_mask = torch.logical_or(final_mask, dist_mask)
++    final_mask = torch.logical_or(final_mask, angle_mask)
++    final_mask = torch.logical_not(final_mask)
++
++    isin = 1.0 / angle
++    q0 *= torch.sin((1.0 - fraction) * angle) * isin
++    q1 *= torch.sin(fraction * angle) * isin
++    q0 += q1
++    out[final_mask] = q0[final_mask]
++    return out

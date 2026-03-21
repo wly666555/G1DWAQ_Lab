@@ -37,6 +37,7 @@ from rsl_rl.modules import (
     StudentTeacherRecurrent,
 )
 from rsl_rl.utils import AMPLoader, Normalizer, store_code_state
+from rsl_rl.utils.amp_load_npz import AMPLoaderNPZ
 
 
 class AmpOnPolicyRunner:
@@ -109,14 +110,22 @@ class AmpOnPolicyRunner:
             # this is used by the symmetry function for handling different observation terms
             self.alg_cfg["symmetry_cfg"]["_env"] = env
 
-        # init amp loader
-        amp_data = AMPLoader(
-            device,
-            time_between_frames=self.env.step_dt,
-            preload_transitions=True,
-            num_preload_transitions=train_cfg["amp_num_preload_transitions"],
-            motion_files=train_cfg["amp_motion_files"],
-        )
+        # init amp loader — 支持 NPZ 格式（文件名以 .npz 结尾）和原始 txt/json 格式
+        motion_files = train_cfg["amp_motion_files"]
+        if motion_files and motion_files[0].endswith(".npz"):
+            amp_data = AMPLoaderNPZ(
+                npz_files=motion_files,
+                device=device,
+                num_preload_transitions=train_cfg["amp_num_preload_transitions"],
+            )
+        else:
+            amp_data = AMPLoader(
+                device,
+                time_between_frames=self.env.step_dt,
+                preload_transitions=True,
+                num_preload_transitions=train_cfg["amp_num_preload_transitions"],
+                motion_files=motion_files,
+            )
         amp_normalizer = Normalizer(amp_data.observation_dim)
         discriminator = Discriminator(
             amp_data.observation_dim * 2,

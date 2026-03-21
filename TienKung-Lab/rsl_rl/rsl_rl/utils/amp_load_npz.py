@@ -98,9 +98,10 @@ class AMPLoaderNPZ:
             self.frame_data = self.frame_data[indices]
 
         self.num_frames = self.frame_data.shape[0]
+        self.observation_dim = self.frame_data.shape[1]  # AmpOnPolicyRunner 需要此属性
 
         print(f"[AMPLoaderNPZ] Successfully loaded {self.num_frames} total frames from {len(self.npz_files)} files")
-        print(f"[AMPLoaderNPZ] Feature dimension: {self.frame_data.shape[1]}")
+        print(f"[AMPLoaderNPZ] Feature dimension: {self.observation_dim}")
 
     def sample(self, batch_size: int):
         """

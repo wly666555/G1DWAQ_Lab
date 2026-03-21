@@ -97,11 +97,15 @@ class G1AmpEnv(G1DwaqEnv):
         if len(env_ids) == 0:
             return
 
-        # 保存 terminal states（reset 之前的最后状态）
-        self._terminal_amp_states[env_ids] = (
-            self.get_amp_observations()[env_ids].clone()
-        )
-        self._reset_env_ids = env_ids.clone()
+        # 只有 robot 已经初始化后才能获取 AMP 观测
+        # （parent __init__ 内部第一次调用 reset 时 robot 还未就绪）
+        if hasattr(self, "robot"):
+            self._terminal_amp_states[env_ids] = (
+                self.get_amp_observations()[env_ids].clone()
+            )
+            self._reset_env_ids = env_ids.clone()
+        else:
+            self._reset_env_ids = env_ids.clone()
 
         super().reset(env_ids)
 
